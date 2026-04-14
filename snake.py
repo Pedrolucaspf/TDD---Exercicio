@@ -53,6 +53,10 @@ class io_handler:
         for line in self.matrix:
             display_content_line(line)
         display_h_line(self)
+    
+    def movement(self):
+        self.matrix[0][2] = 2
+            
 
 ### exemplo do uso da classe io_handler  
 instance = io_handler((10,15), 0.5)
@@ -66,7 +70,7 @@ def game_loop():
         instance.display()
         print("mova com WASD, saia com esc. Ultimo botão:", end=' ')
         ###adicione seu código para lidar com o jogo aqui
-
+        instance.movement()
         print(instance.last_input)
         if(instance.last_input == 'end'):
             exit()
