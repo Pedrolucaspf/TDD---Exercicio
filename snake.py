@@ -72,4 +72,5 @@ def game_loop():
             exit()
         time.sleep(instance.game_speed)
 
-game_loop()
+if __name__ == "__main__":
+    game_loop()
