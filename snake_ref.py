@@ -2,14 +2,24 @@ import os
 import keyboard
 import time
 
+class Snake_body:
+    head_x: int
+    head_y: int
+    size: int
+
+    def __init__(self):
+        self.head_x = 0
+        self.head_y = 1
+        self.size = 2
 
 class io_handler:
     
     x_size: int
     y_size: int
-    game_speed = float
+    game_speed: float
     last_input: str
     matrix = []
+    snake: Snake_body
 
     def __init__(self, dim, speed):
         self.x_size = dim[0]
@@ -17,6 +27,7 @@ class io_handler:
         
         self.game_speed = speed
         self.last_input = 'w'
+        self.snake = Snake_body()
 
         for i in range (self.y_size): 
             self.matrix.append([0]*self.x_size)
@@ -55,8 +66,24 @@ class io_handler:
         display_h_line(self)
     
     def movement(self):
-        if(self.last_input == 'd'):
-            self.matrix[0][2] = 2
+        i = self.snake.head_x
+        j = self.snake.head_y
+        if(self.last_input == 'w'):
+            self.matrix[i-1][j] = 2
+            self.matrix[i][j] = 1
+            self.snake.head_x = i-1
+        elif(self.last_input == 'a'):
+            self.matrix[i][j-1] = 2
+            self.matrix[i][j] = 1
+            self.snake.head_y = j-1
+        elif(self.last_input == 's'):
+            self.matrix[i+1][j] = 2
+            self.matrix[i][j] = 1
+            self.snake.head_x = i+1
+        elif(self.last_input == 'd'):
+            self.matrix[i][j+1] = 2
+            self.matrix[i][j] = 1
+            self.snake.head_y = j+1
             
 
 ### exemplo do uso da classe io_handler  
