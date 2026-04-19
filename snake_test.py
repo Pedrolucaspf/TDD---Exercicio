@@ -7,7 +7,7 @@ def handler():
     instance = io_handler((10, 15), 0.5)
     instance.matrix[0][0] = 1 #corpo
     instance.matrix[0][1] = 2 #cabeça
-    instance.matrix[0][2] = 3 #fruta
+    instance.matrix[0][5] = 3 #fruta
     return instance
 
 def test_handler_mov(handler):
@@ -53,11 +53,6 @@ def test_boundaries(x_before, change_x, y_before, change_y, key):
     instance.snake.head_x = x_before
     instance.snake.head_y = y_before
 
-    #if(key == 'd' or key == 's'):
-    #    change = 1
-    #else:
-    #    change = -1
-
     x_after = (x_before + change_x) % instance.y_size
     y_after = (y_before + change_y) % instance.x_size
 
@@ -85,9 +80,13 @@ def test_boundaries(x_before, change_x, y_before, change_y, key):
         assert instance.matrix[x_after][y_before] == 2
         assert instance.matrix[x_after-change_x][y_before] == 1
 
-
-
-
+def test_disappear(handler):
+    handler.last_input = 's'
+    for i in range(3):
+        handler.movement()
+    
+    assert handler.matrix[0][0] == 0
+    assert handler.matrix[0][1] == 0
+    assert handler.matrix[1][1] == 0
 
     
-
