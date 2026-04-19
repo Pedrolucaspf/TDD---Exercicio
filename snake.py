@@ -2,7 +2,15 @@ import os
 import keyboard
 import time
 
+class Snake_body:
+    head_x: int
+    head_y: int
+    size: int
 
+    def __init__(self):
+        self.head_x = 0
+        self.head_y = 1
+        self.size = 2
 
 class io_handler:
     
@@ -11,8 +19,8 @@ class io_handler:
     game_speed: float
     last_input: str
     matrix = []
-    head_x: int
-    head_y: int
+    snake: Snake_body
+    new_x: int
 
     def __init__(self, dim, speed):
         self.x_size = dim[0]
@@ -20,8 +28,7 @@ class io_handler:
         
         self.game_speed = speed
         self.last_input = 'w'
-        self.head_x = 0
-        self.head_y = 1
+        self.snake = Snake_body()
 
         for i in range (self.y_size): 
             self.matrix.append([0]*self.x_size)
@@ -60,24 +67,28 @@ class io_handler:
         display_h_line(self)
     
     def movement(self):
-        i = self.head_x
-        j = self.head_y
+        i = self.snake.head_x
+        j = self.snake.head_y
         if(self.last_input == 'w'):
-            self.matrix[i-1][j] = 2
+            self.new_x = (i-1)%self.y_size
+            self.matrix[self.new_x][j] = 2
             self.matrix[i][j] = 1
-            self.head_x = i-1
+            self.snake.head_x = self.new_x
         elif(self.last_input == 'a'):
-            self.matrix[i][j-1] = 2
+            new_y = (j-1)%self.x_size
+            self.matrix[i][new_y] = 2
             self.matrix[i][j] = 1
-            self.head_y = j-1
+            self.snake.head_y = new_y
         elif(self.last_input == 's'):
-            self.matrix[i+1][j] = 2
+            self.new_x = (i+1)%self.y_size
+            self.matrix[self.new_x][j] = 2
             self.matrix[i][j] = 1
-            self.head_x = i+1
+            self.snake.head_x = self.new_x
         elif(self.last_input == 'd'):
-            self.matrix[i][j+1] = 2
+            new_y = (j+1)%self.x_size
+            self.matrix[i][new_y] = 2
             self.matrix[i][j] = 1
-            self.head_y = j+1
+            self.snake.head_y = new_y
             
 
 ### exemplo do uso da classe io_handler  
@@ -89,11 +100,13 @@ instance.matrix[0][2] = 3 #fruta
 def game_loop():
     instance.record_inputs()
     while True:
+        instance.movement()
         instance.display()
         print("mova com WASD, saia com esc. Ultimo botão:", end=' ')
         ###adicione seu código para lidar com o jogo aqui
-        instance.movement()
+        
         print(instance.last_input)
+        print(instance.new_x)
         if(instance.last_input == 'end'):
             exit()
         time.sleep(instance.game_speed)
