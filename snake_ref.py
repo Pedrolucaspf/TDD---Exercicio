@@ -26,7 +26,7 @@ class io_handler:
         self.y_size = dim[1]
         
         self.game_speed = speed
-        self.last_input = 'w'
+        self.last_input = 's'
         self.snake = Snake_body()
 
         for i in range (self.y_size): 
@@ -69,21 +69,25 @@ class io_handler:
         i = self.snake.head_x
         j = self.snake.head_y
         if(self.last_input == 'w'):
-            self.matrix[i-1][j] = 2
+            new_x = (i-1)%self.y_size
+            self.matrix[new_x][j] = 2
             self.matrix[i][j] = 1
-            self.snake.head_x = i-1
+            self.snake.head_x = new_x
         elif(self.last_input == 'a'):
-            self.matrix[i][j-1] = 2
+            new_y = (j-1)%self.x_size
+            self.matrix[i][new_y] = 2
             self.matrix[i][j] = 1
-            self.snake.head_y = j-1
+            self.snake.head_y = new_y
         elif(self.last_input == 's'):
-            self.matrix[i+1][j] = 2
+            new_x = (i+1)%self.y_size
+            self.matrix[new_x][j] = 2
             self.matrix[i][j] = 1
-            self.snake.head_x = i+1
+            self.snake.head_x = new_x
         elif(self.last_input == 'd'):
-            self.matrix[i][j+1] = 2
+            new_y = (j+1)%self.x_size
+            self.matrix[i][new_y] = 2
             self.matrix[i][j] = 1
-            self.snake.head_y = j+1
+            self.snake.head_y = new_y
             
 
 ### exemplo do uso da classe io_handler  
@@ -95,10 +99,11 @@ instance.matrix[0][2] = 3 #fruta
 def game_loop():
     instance.record_inputs()
     while True:
+        instance.movement()
         instance.display()
         print("mova com WASD, saia com esc. Ultimo botão:", end=' ')
         ###adicione seu código para lidar com o jogo aqui
-        instance.movement()
+        
         print(instance.last_input)
         if(instance.last_input == 'end'):
             exit()
