@@ -5,12 +5,13 @@ import time
 class Snake_body:
     head_x: int
     head_y: int
-    size: int
+    body: list
 
     def __init__(self):
         self.head_x = 0
         self.head_y = 1
-        self.size = 2
+        self.body = [(0,0)]
+
 
 class io_handler:
     
@@ -18,6 +19,7 @@ class io_handler:
     y_size: int
     game_speed: float
     last_input: str
+    test_reconstruct: bool
     matrix = []
     snake: Snake_body
 
@@ -28,6 +30,8 @@ class io_handler:
         self.game_speed = speed
         self.last_input = 's'
         self.snake = Snake_body()
+        self.test_reconstruct = True
+        self.matrix = []
 
         for i in range (self.y_size): 
             self.matrix.append([0]*self.x_size)
@@ -66,6 +70,17 @@ class io_handler:
         display_h_line(self)
     
     def movement(self):
+        
+        if(self.test_reconstruct):
+            self.snake.body = []
+            for x in range(self.y_size):
+                for y in range(self.x_size):
+                    if(self.matrix[x][y] == 2):
+                        self.snake.head_x = x
+                        self.snake.head_y = y
+                    elif(self.matrix[x][y] == 1):
+                        self.snake.body.append((x, y))
+
         i = self.snake.head_x
         j = self.snake.head_y
         if(self.last_input == 'w'):
@@ -73,21 +88,32 @@ class io_handler:
             self.matrix[new_x][j] = 2
             self.matrix[i][j] = 1
             self.snake.head_x = new_x
+            
         elif(self.last_input == 'a'):
             new_y = (j-1)%self.x_size
             self.matrix[i][new_y] = 2
             self.matrix[i][j] = 1
             self.snake.head_y = new_y
+            
         elif(self.last_input == 's'):
             new_x = (i+1)%self.y_size
             self.matrix[new_x][j] = 2
             self.matrix[i][j] = 1
             self.snake.head_x = new_x
+            
         elif(self.last_input == 'd'):
             new_y = (j+1)%self.x_size
             self.matrix[i][new_y] = 2
             self.matrix[i][j] = 1
             self.snake.head_y = new_y
+            
+        
+        if(self.last_input != 'end'):
+            self.snake.body.insert(0, (i, j))
+            k = self.snake.body[-1][0]
+            l = self.snake.body[-1][1]
+            self.matrix[k][l] = 0
+            self.snake.body.pop()
             
 
 ### exemplo do uso da classe io_handler  
@@ -97,6 +123,7 @@ instance.matrix[0][1] = 2 #cabeça
 instance.matrix[0][2] = 3 #fruta
 
 def game_loop():
+    instance.test_reconstruct = False
     instance.record_inputs()
     while True:
         instance.movement()
