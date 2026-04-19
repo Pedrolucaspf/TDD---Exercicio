@@ -1,5 +1,5 @@
-#from snake import io_handler
-from snake_ref import io_handler
+from snake import io_handler
+#from snake_ref import io_handler
 import pytest
 
 @pytest.fixture
@@ -39,27 +39,30 @@ def test_handler_mov(handler):
     assert handler.matrix[1][2] == 2
     assert handler.matrix[2][2] == 1
 
-@pytest.mark.parametrize("x_before, x_after, y_before, y_after, key", [
-    (0, 0, -1, 0, 'd'),
-    (-1, -1, 0, -1, 'a'),
-    (-1, 0, 0, 0, 's'),
-    (0, -1, -1, -1, 'w'),
+@pytest.mark.parametrize("x_before, change_x, y_before, change_y, key", [
+    (0, 0, -1, 1, 'd'),
+    (-1, 0, 0, -1, 'a'),
+    (-1, 1, 0, 0, 's'),
+    (0, -1, -1, 0, 'w'),
 ])
 
-def test_boundaries(x_before, x_after, y_before, y_after, key):
+def test_boundaries(x_before, change_x, y_before, change_y, key):
     instance = io_handler((10, 15), 0.5)
     instance.matrix[x_before][y_before] = 2
     instance.last_input = key
     instance.snake.head_x = x_before
     instance.snake.head_y = y_before
 
-    if(key == 'd' or key == 's'):
-        change = 1
-    else:
-        change = -1
+    #if(key == 'd' or key == 's'):
+    #    change = 1
+    #else:
+    #    change = -1
+
+    x_after = (x_before + change_x) % instance.y_size
+    y_after = (y_before + change_y) % instance.x_size
 
     if(x_before == x_after):
-        instance.matrix[x_before][y_before-change] = 1
+        instance.matrix[x_before][y_before-change_y] = 1
         instance.movement()
         assert instance.matrix[x_before][y_after] == 2
         assert instance.matrix[x_before][y_before] == 1
@@ -68,10 +71,10 @@ def test_boundaries(x_before, x_after, y_before, y_after, key):
             instance.movement()
 
         assert instance.matrix[x_before][y_after] == 2
-        assert instance.matrix[x_before][y_after] == 1
+        assert instance.matrix[x_before][y_after-change_y] == 1
 
     elif(y_before == y_after):
-        instance.matrix[x_before-change][y_before] = 1
+        instance.matrix[x_before-change_x][y_before] = 1
         instance.movement()
         assert instance.matrix[x_after][y_before] == 2
         assert instance.matrix[x_before][y_before] == 1
@@ -80,7 +83,7 @@ def test_boundaries(x_before, x_after, y_before, y_after, key):
             instance.movement()
         
         assert instance.matrix[x_after][y_before] == 2
-        assert instance.matrix[x_after][y_before] == 1
+        assert instance.matrix[x_after-change_x][y_before] == 1
 
 
 
