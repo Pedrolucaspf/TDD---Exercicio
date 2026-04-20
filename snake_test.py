@@ -1,5 +1,5 @@
-from snake import io_handler
-#from snake_ref import io_handler
+#from snake import io_handler
+from snake_ref import io_handler
 import pytest
 
 @pytest.fixture
@@ -8,6 +8,21 @@ def handler():
     instance.matrix[0][0] = 1 #corpo
     instance.matrix[0][1] = 2 #cabeça
     instance.matrix[0][5] = 3 #fruta
+    return instance
+
+@pytest.fixture
+def handler_multi():
+    instance = io_handler((10, 15), 0.5)
+    instance.matrix[0][0] = 1 
+    instance.matrix[0][1] = 2
+    for i in range(1, 9): 
+        instance.matrix[i][1] = 3
+        instance.fruit_count += 1
+
+    instance.last_input = 's'
+    for i in range(8):
+        instance.movement()
+
     return instance
 
 def test_handler_mov(handler):
@@ -110,3 +125,34 @@ def test_eat_fruit(handler):
             
         
     assert fruit_present == True
+
+
+def test_multi_fruit(handler_multi):
+    assert handler_multi.snake.size == 10
+    assert handler_multi.fruit_count == 2
+    
+    for x in range(handler_multi.y_size):
+                for y in range(handler_multi.x_size):
+                    if(handler_multi.matrix[x][y] == 3):
+                        handler_multi.matrix[x][y] = 0
+                        handler_multi.fruit_count -= 1
+
+    hx = handler_multi.snake.head_x
+    hy = handler_multi.snake.head_y
+    for i in range(1, 5): 
+        handler_multi.matrix[hx+i][hy] = 3
+        handler_multi.fruit_count += 1
+
+    for i in range(4):
+        handler_multi.movement()
+
+    for i in range(1, 7): 
+        handler_multi.matrix[hx][hy+i] = 3
+        handler_multi.fruit_count += 1
+
+    handler_multi.last_input = 'd'
+    for i in range(6):
+        handler_multi.movement()
+
+    assert handler_multi.snake.size == 10
+    assert handler_multi.fruit_count == 2
