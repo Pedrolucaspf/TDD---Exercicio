@@ -1,5 +1,5 @@
-#from snake import io_handler
-from snake_ref import io_handler
+from snake import io_handler
+#from snake_ref import io_handler
 import pytest
 
 @pytest.fixture
@@ -143,8 +143,18 @@ def test_multi_fruit(handler_multi):
         handler_multi.matrix[hx+i][hy] = 3
         handler_multi.fruit_count += 1
 
+    hx += 4
+
     for i in range(4):
         handler_multi.movement()
+    
+    assert handler_multi.snake.size == 14
+
+    for x in range(handler_multi.y_size):
+        for y in range(handler_multi.x_size):
+            if(handler_multi.matrix[x][y] == 3):
+                handler_multi.matrix[x][y] = 0
+                handler_multi.fruit_count -= 1
 
     for i in range(1, 7): 
         handler_multi.matrix[hx][hy+i] = 3
@@ -154,5 +164,5 @@ def test_multi_fruit(handler_multi):
     for i in range(6):
         handler_multi.movement()
 
-    assert handler_multi.snake.size == 10
-    assert handler_multi.fruit_count == 2
+    assert handler_multi.snake.size == 20
+    assert handler_multi.fruit_count == 3
