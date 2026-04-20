@@ -1,5 +1,5 @@
-from snake import io_handler
-#from snake_ref import io_handler
+#from snake import io_handler
+from snake_ref import io_handler
 import pytest
 
 @pytest.fixture
@@ -166,3 +166,27 @@ def test_multi_fruit(handler_multi):
 
     assert handler_multi.snake.size == 20
     assert handler_multi.fruit_count == 3
+
+
+def test_game_over(handler_multi):
+    handler_multi.last_input = 'd'
+    for i in range(2):
+        handler_multi.movement()
+    
+    handler_multi.last_input = 'w'
+    handler_multi.movement()
+    
+    handler_multi.last_input = 'a'
+    handler_multi.movement()
+
+    hx = handler_multi.snake.head_x
+    hy = handler_multi.snake.head_y
+
+    handler_multi.movement()
+
+    assert handler_multi.game_over == True
+
+    handler_multi.movement()
+
+    assert handler_multi.snake.head_x == hx
+    assert handler_multi.snake.head_y == hy
