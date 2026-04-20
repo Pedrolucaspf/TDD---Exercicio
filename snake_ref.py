@@ -1,6 +1,7 @@
 import os
 import keyboard
 import time
+import random
 
 class Snake_body:
     head_x: int
@@ -90,7 +91,7 @@ class io_handler:
             new_x = (i-1)%self.y_size
 
             if(self.matrix[new_x][j] == 3):
-                self.snake.size += 1
+                self.snake.size = 3
                 erase_last = False
 
             self.matrix[new_x][j] = 2
@@ -101,7 +102,7 @@ class io_handler:
             new_y = (j-1)%self.x_size
             
             if(self.matrix[i][new_y] == 3):
-                self.snake.size += 1
+                self.snake.size = 3
                 erase_last = False
 
             self.matrix[i][new_y] = 2
@@ -112,7 +113,7 @@ class io_handler:
             new_x = (i+1)%self.y_size
             
             if(self.matrix[new_x][j] == 3):
-                self.snake.size += 1
+                self.snake.size = 3
                 erase_last = False
 
             self.matrix[new_x][j] = 2
@@ -122,7 +123,7 @@ class io_handler:
         elif(self.last_input == 'd'):
             new_y = (j+1)%self.x_size
             if(self.matrix[i][new_y] == 3):
-                self.snake.size += 1
+                self.snake.size = 3
                 erase_last = False
 
             self.matrix[i][new_y] = 2
@@ -137,7 +138,18 @@ class io_handler:
                 l = self.snake.body[-1][1]
                 self.matrix[k][l] = 0
                 self.snake.body.pop()
+            else:
+                self.spawn_fruit()
             
+    def spawn_fruit(self):
+        fruit_spawned = 0
+        while(fruit_spawned == 0):
+            x = random.randint(1, self.y_size) - 1
+            y = random.randint(1, self.x_size) - 1
+            if(self.matrix[x][y]!=2 and self.matrix[x][y]!=1):
+                self.matrix[x][y] = 3
+                fruit_spawned = 1
+
 
 ### exemplo do uso da classe io_handler  
 instance = io_handler((10,15), 0.5)
