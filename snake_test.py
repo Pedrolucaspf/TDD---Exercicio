@@ -90,3 +90,15 @@ def test_disappear(handler):
     assert handler.matrix[1][1] == 0
 
     
+def test_eat_fruit(handler):
+    handler.last_input = 'd'
+    handler.test_reconstruct = False
+    for i in range(4):
+        handler.movement()
+        
+    assert handler.snake.size == 3
+    assert handler.matrix[0][5] == 2
+    assert handler.matrix[0][4] == 1
+    assert handler.matrix[0][3] == 1
+    
+     
