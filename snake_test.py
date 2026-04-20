@@ -101,4 +101,12 @@ def test_eat_fruit(handler):
     assert handler.matrix[0][4] == 1
     assert handler.matrix[0][3] == 1
     
-     
+    fruit_present = False
+
+    for x in range(handler.y_size):
+        for y in range(handler.x_size):
+            if(handler.matrix[x][y] == 3):
+                fruit_present = True
+            
+        
+    assert fruit_present == True
