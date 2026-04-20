@@ -91,7 +91,7 @@ class io_handler:
             new_x = (i-1)%self.y_size
 
             if(self.matrix[new_x][j] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[new_x][j] = 2
@@ -102,7 +102,7 @@ class io_handler:
             new_y = (j-1)%self.x_size
             
             if(self.matrix[i][new_y] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[i][new_y] = 2
@@ -113,7 +113,7 @@ class io_handler:
             new_x = (i+1)%self.y_size
             
             if(self.matrix[new_x][j] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[new_x][j] = 2
@@ -123,7 +123,7 @@ class io_handler:
         elif(self.last_input == 'd'):
             new_y = (j+1)%self.x_size
             if(self.matrix[i][new_y] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[i][new_y] = 2
