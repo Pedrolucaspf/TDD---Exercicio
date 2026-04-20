@@ -1,5 +1,5 @@
-#from snake import io_handler
-from snake_ref import io_handler
+from snake import io_handler
+#from snake_ref import io_handler
 import pytest
 
 @pytest.fixture
@@ -169,6 +169,7 @@ def test_multi_fruit(handler_multi):
 
 
 def test_game_over(handler_multi):
+    handler_multi.test_reconstruct = False
     handler_multi.last_input = 'd'
     for i in range(2):
         handler_multi.movement()
