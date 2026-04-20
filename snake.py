@@ -137,7 +137,15 @@ class io_handler:
                 l = self.snake.body[-1][1]
                 self.matrix[k][l] = 0
                 self.snake.body.pop()
+            else:
+                self.spawn_fruit()
             
+    def spawn_fruit(self):
+        for x in range(self.y_size):
+                for y in range(self.x_size):
+                    if(self.matrix[x][y]!=2 and self.matrix[x][y]!=1):
+                        self.matrix[x][y] = 3
+
 
 ### exemplo do uso da classe io_handler  
 instance = io_handler((10,15), 0.5)
