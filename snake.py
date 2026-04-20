@@ -1,6 +1,7 @@
 import os
 import keyboard
 import time
+import random
 
 class Snake_body:
     head_x: int
@@ -19,6 +20,7 @@ class io_handler:
     
     x_size: int
     y_size: int
+    fruit_count: int
     game_speed: float
     last_input: str
     test_reconstruct: bool
@@ -29,6 +31,7 @@ class io_handler:
         self.x_size = dim[0]
         self.y_size = dim[1]
         
+        self.fruit_count = 0
         self.game_speed = speed
         self.last_input = 'd'
         self.snake = Snake_body()
@@ -90,7 +93,7 @@ class io_handler:
             new_x = (i-1)%self.y_size
 
             if(self.matrix[new_x][j] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[new_x][j] = 2
@@ -101,7 +104,7 @@ class io_handler:
             new_y = (j-1)%self.x_size
             
             if(self.matrix[i][new_y] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[i][new_y] = 2
@@ -112,7 +115,7 @@ class io_handler:
             new_x = (i+1)%self.y_size
             
             if(self.matrix[new_x][j] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[new_x][j] = 2
@@ -122,7 +125,7 @@ class io_handler:
         elif(self.last_input == 'd'):
             new_y = (j+1)%self.x_size
             if(self.matrix[i][new_y] == 3):
-                self.snake.size = 3
+                self.snake.size += 1
                 erase_last = False
 
             self.matrix[i][new_y] = 2
@@ -138,23 +141,40 @@ class io_handler:
                 self.matrix[k][l] = 0
                 self.snake.body.pop()
             else:
-                self.spawn_fruit()
+                self.fruit_count -= 1
+                if(self.fruit_count < 0):
+                    self.fruit_count = 0
+
+                if(self.fruit_count == 0):
+                    self.spawn_fruit()
             
     def spawn_fruit(self):
-        for x in range(self.y_size):
-                for y in range(self.x_size):
-                    if(self.matrix[x][y]!=2 and self.matrix[x][y]!=1):
-                        self.matrix[x][y] = 3
+        num_fruits = 1
+        if(self.snake.size >= 20):
+            num_fruits = 3
+        elif(self.snake.size >= 10):
+            num_fruits = 2
+        for i in range(num_fruits):
+            fruit_spawned = 0
+            while(fruit_spawned == 0):
+                x = random.randint(1, self.y_size) - 1
+                y = random.randint(1, self.x_size) - 1
+                if(self.matrix[x][y]<1 or self.matrix[x][y]>3):
+                    self.matrix[x][y] = 3
+                    self.fruit_count += 1
+                    fruit_spawned = 1
 
 
 ### exemplo do uso da classe io_handler  
 instance = io_handler((10,15), 0.5)
 instance.matrix[0][0] = 1 #corpo
 instance.matrix[0][1] = 2 #cabeça
-instance.matrix[0][5] = 3 #fruta
+#instance.matrix[0][5] = 3 #fruta
+
 
 def game_loop():
     instance.test_reconstruct = False
+    instance.spawn_fruit()
     instance.record_inputs()
     while True:
         instance.movement()
