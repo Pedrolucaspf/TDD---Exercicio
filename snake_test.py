@@ -1,5 +1,5 @@
-from snake import io_handler
-#from snake_ref import io_handler
+#from snake import io_handler
+from snake_ref import io_handler
 import pytest
 
 @pytest.fixture
@@ -191,3 +191,30 @@ def test_game_over(handler_multi):
 
     assert handler_multi.snake.head_x == hx
     assert handler_multi.snake.head_y == hy
+
+def test_opposing_keys(handler):
+    handler.last_input = 's'
+    handler.movement()
+    handler.last_input = 'w'
+    handler.movement()
+    assert handler.snake.head_x == 2
+
+    handler.last_input = 'd'
+    handler.movement()
+    handler.last_input = 'a'
+    handler.movement()
+    assert handler.snake.head_y == 3
+
+    handler.last_input = 'w'
+    handler.movement()
+    handler.last_input = 's'
+    handler.movement()
+    assert handler.snake.head_y == 0
+
+    handler.last_input = 'a'
+    handler.movement()
+    handler.last_input = 'd'
+    handler.movement()
+    assert handler.snake.head_y == 1
+
+
