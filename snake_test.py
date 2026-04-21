@@ -1,5 +1,5 @@
-#from snake import io_handler
-from snake_ref import io_handler
+from snake import io_handler
+#from snake_ref import io_handler
 import pytest
 
 @pytest.fixture
@@ -209,7 +209,7 @@ def test_opposing_keys(handler):
     handler.movement()
     handler.last_input = 's'
     handler.movement()
-    assert handler.snake.head_y == 0
+    assert handler.snake.head_x == 0
 
     handler.last_input = 'a'
     handler.movement()
