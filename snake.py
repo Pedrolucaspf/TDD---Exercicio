@@ -23,6 +23,7 @@ class io_handler:
     fruit_count: int
     game_speed: float
     last_input: str
+    prev_input: str
     test_reconstruct: bool
     game_over: bool
     matrix = []
@@ -35,6 +36,7 @@ class io_handler:
         self.fruit_count = 0
         self.game_speed = speed
         self.last_input = 'd'
+        self.prev_input = 'd'
         self.snake = Snake_body()
         self.test_reconstruct = True
         self.game_over = False
@@ -92,22 +94,34 @@ class io_handler:
             i = self.snake.head_x
             j = self.snake.head_y
             erase_last = True
+
+            if(self.prev_input == 's' and self.last_input == 'w'):
+               self.last_input = 's'
+            elif(self.prev_input == 'w' and self.last_input == 's'):
+               self.last_input = 'w'
+            elif(self.prev_input == 'a' and self.last_input == 'd'):
+               self.last_input = 'a'
+            elif(self.prev_input == 'd' and self.last_input == 'a'):
+               self.last_input = 'd'
+            
+
+
             if(self.last_input == 'w'):
                 new_x = (i-1)%self.y_size
-                if(self.matrix[new_x][j] == 1):
+                if(self.matrix[new_x][j] == 1 and self.snake.body[-1]!=(new_x, j)):
                     self.game_over = True
                     return
                 elif(self.matrix[new_x][j] == 3):
                     self.snake.size += 1
                     erase_last = False
-
+                
                 self.matrix[new_x][j] = 2
                 self.matrix[i][j] = 1
                 self.snake.head_x = new_x
-                
+                self.prev_input = self.last_input
             elif(self.last_input == 'a'):
                 new_y = (j-1)%self.x_size
-                if(self.matrix[i][new_y] == 1):
+                if(self.matrix[i][new_y] == 1 and self.snake.body[-1]!=(i, new_y)):
                     self.game_over = True
                     return
                 elif(self.matrix[i][new_y] == 3):
@@ -117,10 +131,10 @@ class io_handler:
                 self.matrix[i][new_y] = 2
                 self.matrix[i][j] = 1
                 self.snake.head_y = new_y
-                
+                self.prev_input = self.last_input
             elif(self.last_input == 's'):
                 new_x = (i+1)%self.y_size
-                if(self.matrix[new_x][j] == 1):
+                if(self.matrix[new_x][j] == 1 and self.snake.body[-1]!=(new_x, j)):
                     self.game_over = True
                     return
                 elif(self.matrix[new_x][j] == 3):
@@ -130,10 +144,10 @@ class io_handler:
                 self.matrix[new_x][j] = 2
                 self.matrix[i][j] = 1
                 self.snake.head_x = new_x
-                
+                self.prev_input = self.last_input
             elif(self.last_input == 'd'):
                 new_y = (j+1)%self.x_size
-                if(self.matrix[i][new_y] == 1):
+                if(self.matrix[i][new_y] == 1 and self.snake.body[-1]!=(i, new_y)):
                     self.game_over = True
                     return
                 elif(self.matrix[i][new_y] == 3):
@@ -143,13 +157,15 @@ class io_handler:
                 self.matrix[i][new_y] = 2
                 self.matrix[i][j] = 1
                 self.snake.head_y = new_y
-                
+                self.prev_input = self.last_input
+
             if(self.last_input != 'end'):
                 self.snake.body.insert(0, (i, j))
                 if(erase_last == True):
                     k = self.snake.body[-1][0]
                     l = self.snake.body[-1][1]
-                    self.matrix[k][l] = 0
+                    if(self.matrix[k][l]!=2):
+                        self.matrix[k][l] = 0
                     self.snake.body.pop()
                 else:
                     self.fruit_count -= 1
@@ -176,7 +192,6 @@ class io_handler:
 instance = io_handler((10,15), 0.5)
 instance.matrix[0][0] = 1 #corpo
 instance.matrix[0][1] = 2 #cabeça
-#instance.matrix[0][5] = 3 #fruta
 
 
 def game_loop():
@@ -190,7 +205,8 @@ def game_loop():
         ###adicione seu código para lidar com o jogo aqui
         
         print(instance.last_input)
-        if(instance.last_input == 'end'):
+        if(instance.game_over == True or instance.last_input == 'end'):
+            print("Pontuação Final: ", instance.snake.size)
             exit()
         time.sleep(instance.game_speed)
 
