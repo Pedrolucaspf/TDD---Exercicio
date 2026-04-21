@@ -24,6 +24,7 @@ class io_handler:
     game_speed: float
     last_input: str
     test_reconstruct: bool
+    game_over: bool
     matrix = []
     snake: Snake_body
 
@@ -36,6 +37,7 @@ class io_handler:
         self.last_input = 'd'
         self.snake = Snake_body()
         self.test_reconstruct = True
+        self.game_over = False
         self.matrix = []
 
         for i in range (self.y_size): 
@@ -75,85 +77,90 @@ class io_handler:
         display_h_line(self)
     
     def movement(self):
-        
-        if(self.test_reconstruct):
-            self.snake.body = []
-            for x in range(self.y_size):
-                for y in range(self.x_size):
-                    if(self.matrix[x][y] == 2):
-                        self.snake.head_x = x
-                        self.snake.head_y = y
-                    elif(self.matrix[x][y] == 1):
-                        self.snake.body.append((x, y))
+        if(self.game_over == False):
 
-        i = self.snake.head_x
-        j = self.snake.head_y
-        erase_last = True
-        if(self.last_input == 'w'):
-            new_x = (i-1)%self.y_size
+            if(self.test_reconstruct):
+                self.snake.body = []
+                for x in range(self.y_size):
+                    for y in range(self.x_size):
+                        if(self.matrix[x][y] == 2):
+                            self.snake.head_x = x
+                            self.snake.head_y = y
+                        elif(self.matrix[x][y] == 1):
+                            self.snake.body.append((x, y))
 
-            if(self.matrix[new_x][j] == 3):
-                self.snake.size += 1
-                erase_last = False
+            i = self.snake.head_x
+            j = self.snake.head_y
+            erase_last = True
+            if(self.last_input == 'w'):
+                new_x = (i-1)%self.y_size
+                if(self.matrix[new_x][j] == 1):
+                    self.game_over = True
+                    return
+                elif(self.matrix[new_x][j] == 3):
+                    self.snake.size += 1
+                    erase_last = False
 
-            self.matrix[new_x][j] = 2
-            self.matrix[i][j] = 1
-            self.snake.head_x = new_x
-            
-        elif(self.last_input == 'a'):
-            new_y = (j-1)%self.x_size
-            
-            if(self.matrix[i][new_y] == 3):
-                self.snake.size += 1
-                erase_last = False
+                self.matrix[new_x][j] = 2
+                self.matrix[i][j] = 1
+                self.snake.head_x = new_x
+                
+            elif(self.last_input == 'a'):
+                new_y = (j-1)%self.x_size
+                if(self.matrix[i][new_y] == 1):
+                    self.game_over = True
+                    return
+                elif(self.matrix[i][new_y] == 3):
+                    self.snake.size += 1
+                    erase_last = False
 
-            self.matrix[i][new_y] = 2
-            self.matrix[i][j] = 1
-            self.snake.head_y = new_y
-            
-        elif(self.last_input == 's'):
-            new_x = (i+1)%self.y_size
-            
-            if(self.matrix[new_x][j] == 3):
-                self.snake.size += 1
-                erase_last = False
+                self.matrix[i][new_y] = 2
+                self.matrix[i][j] = 1
+                self.snake.head_y = new_y
+                
+            elif(self.last_input == 's'):
+                new_x = (i+1)%self.y_size
+                if(self.matrix[new_x][j] == 1):
+                    self.game_over = True
+                    return
+                elif(self.matrix[new_x][j] == 3):
+                    self.snake.size += 1
+                    erase_last = False
 
-            self.matrix[new_x][j] = 2
-            self.matrix[i][j] = 1
-            self.snake.head_x = new_x
-            
-        elif(self.last_input == 'd'):
-            new_y = (j+1)%self.x_size
-            if(self.matrix[i][new_y] == 3):
-                self.snake.size += 1
-                erase_last = False
+                self.matrix[new_x][j] = 2
+                self.matrix[i][j] = 1
+                self.snake.head_x = new_x
+                
+            elif(self.last_input == 'd'):
+                new_y = (j+1)%self.x_size
+                if(self.matrix[i][new_y] == 1):
+                    self.game_over = True
+                    return
+                elif(self.matrix[i][new_y] == 3):
+                    self.snake.size += 1
+                    erase_last = False
 
-            self.matrix[i][new_y] = 2
-            self.matrix[i][j] = 1
-            self.snake.head_y = new_y
-            
-        
-        if(self.last_input != 'end'):
-            self.snake.body.insert(0, (i, j))
-            if(erase_last == True):
-                k = self.snake.body[-1][0]
-                l = self.snake.body[-1][1]
-                self.matrix[k][l] = 0
-                self.snake.body.pop()
-            else:
-                self.fruit_count -= 1
-                if(self.fruit_count < 0):
-                    self.fruit_count = 0
+                self.matrix[i][new_y] = 2
+                self.matrix[i][j] = 1
+                self.snake.head_y = new_y
+                
+            if(self.last_input != 'end'):
+                self.snake.body.insert(0, (i, j))
+                if(erase_last == True):
+                    k = self.snake.body[-1][0]
+                    l = self.snake.body[-1][1]
+                    self.matrix[k][l] = 0
+                    self.snake.body.pop()
+                else:
+                    self.fruit_count -= 1
+                    if(self.fruit_count < 0):
+                        self.fruit_count = 0
 
-                if(self.fruit_count == 0):
-                    self.spawn_fruit()
+                    if(self.fruit_count == 0):
+                        self.spawn_fruit()
             
     def spawn_fruit(self):
-        num_fruits = 1
-        if(self.snake.size >= 20):
-            num_fruits = 3
-        elif(self.snake.size >= 10):
-            num_fruits = 2
+        num_fruits = 1 + (self.snake.size//10) # Arredonda para baixo
         for i in range(num_fruits):
             fruit_spawned = 0
             while(fruit_spawned == 0):
