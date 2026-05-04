@@ -44,7 +44,7 @@ class Snake_body:
         self.head_hitbox = pygame.Rect(self.head_x, self.head_y, side_len, side_len)
         self.size = 2
         self.body = [(0,0)]
-        self.seg_dir = ['h']
+        self.seg_dir = [('d', 'd')]
         self.body_hitboxes = []
         self.body_hitboxes.insert(0, pygame.Rect(self.body[0][0], self.body[0][1], side_len, side_len))
 
@@ -78,9 +78,31 @@ class game:
             screen.blit(head_d_img, (self.snake.head_x, self.snake.head_y))
         elif(self.last_input == 'd'):
             screen.blit(head_r_img, (self.snake.head_x, self.snake.head_y))
-        
-        for k in range(self.snake.size-1):
-            screen.blit(body_h_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+
+        for k in range(len(self.snake.body_hitboxes)):
+            if(k != len(self.snake.body_hitboxes)-1):
+                if(self.snake.seg_dir[k] == ('d', 'd') or self.snake.seg_dir[k] == ('a', 'a')):
+                    screen.blit(body_h_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k] == ('w', 'w') or self.snake.seg_dir[k] == ('s', 's')):
+                    screen.blit(body_v_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k] == ('d', 's') or self.snake.seg_dir[k] == ('w', 'a')):
+                    screen.blit(body_bl_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k] == ('a', 's') or self.snake.seg_dir[k] == ('w', 'd')):
+                    screen.blit(body_br_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k] == ('d', 'w') or self.snake.seg_dir[k] == ('s', 'a')):
+                    screen.blit(body_tl_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k] == ('a', 'w') or self.snake.seg_dir[k] == ('s', 'd')):
+                    screen.blit(body_tr_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+            
+            else:
+                if(self.snake.seg_dir[k][1] == 'w'):
+                    screen.blit(tail_d_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k][1] == 'a'):
+                    screen.blit(tail_r_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k][1] == 's'):
+                    screen.blit(tail_u_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
+                elif(self.snake.seg_dir[k][1] == 'd'):
+                    screen.blit(tail_l_img, (self.snake.body_hitboxes[k].x, self.snake.body_hitboxes[k].y))
 
         for k in range(len(self.fruit_hitboxes)):
             screen.blit(fruit_img, (self.fruit_hitboxes[k].x, self.fruit_hitboxes[k].y))
@@ -107,13 +129,18 @@ class game:
 
             if(self.prev_input == 's' and self.last_input == 'w'):
                self.last_input = 's'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             elif(self.prev_input == 'w' and self.last_input == 's'):
                self.last_input = 'w'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             elif(self.prev_input == 'a' and self.last_input == 'd'):
                self.last_input = 'a'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             elif(self.prev_input == 'd' and self.last_input == 'a'):
                self.last_input = 'd'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             else:
+                self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
                 self.prev_input = self.last_input       
 
             i = self.snake.head_x
@@ -160,6 +187,7 @@ class game:
                 if(erase_last == True):
                     self.snake.body.pop()
                     self.snake.body_hitboxes.pop()
+                    self.snake.seg_dir.pop()
                 elif(len(self.fruit_hitboxes) == 0):
                         self.spawn_fruit()
             
@@ -220,4 +248,3 @@ def game_loop():
 
 if __name__ == "__main__":
     game_loop()
-
