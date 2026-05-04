@@ -126,17 +126,17 @@ def test_multi_fruit():
 def test_game_over():
     g = snake.game((640, 640))
 
-    g.snake.head_x = 1*side
-    g.snake.head_y = 0
+    g.snake.head_x = 2*side
+    g.snake.head_y = 1*side
 
-    g.snake.head_hitbox.x = side
-    g.snake.head_hitbox.y = 0
+    g.snake.head_hitbox.x = 2*side
+    g.snake.head_hitbox.y = 1*side
 
-    g.snake.body = [(0, 0), (side, 0)]
+    g.snake.body = [(3*side, 1), (3*side, 0), (2*side, 0),(side, 0), (0,0)]
 
-    g.snake.body_hitboxes = [pygame.Rect(0, 0, side, side), pygame.Rect(side, 0, side, side)]
+    g.snake.body_hitboxes = [pygame.Rect(3*side, 1, side, side), pygame.Rect(3*side, 0, side, side), pygame.Rect(2*side, 0, side, side), pygame.Rect(side, 0, side, side), pygame.Rect(0, 0, side, side)]
 
-    g.last_input = 'a'
+    g.last_input = 'w'
     g.movement()
 
     assert g.game_over == True
