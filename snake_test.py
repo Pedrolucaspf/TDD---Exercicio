@@ -175,4 +175,30 @@ def test_opposing_keys():
     g.movement()
     assert g.prev_input == 'a'
 
-    
+def test_store_directions():
+    g = snake.game((640, 640))
+    g.snake.head_x = 2*side
+    g.snake.head_y = 1*side
+
+    g.snake.head_hitbox.x = 2*side
+    g.snake.head_hitbox.y = 1*side
+
+    g.snake.body = [(1*side, 1*side)]
+
+    g.snake.body_hitboxes = [pygame.Rect(1*side, 1*side, side, side)]
+
+    assert g.snake.seg_dir[0] == ('d', 'd')
+
+    g.last_input = 's'
+
+    g.movement()
+
+    assert g.snake.seg_dir[0] == ('d', 's')
+
+    g.last_input = 'a'
+
+    g.movement()
+
+    assert g.snake.seg_dir[0] == ('s', 'a')
+
+
