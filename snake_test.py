@@ -1,6 +1,5 @@
-#from snake import io_handler
-#from snake_ref import io_handler
-import snake_pygame_fixed
+#import snake_ref
+import snake
 
 import pytest
 import pygame
@@ -8,7 +7,7 @@ import pygame
 pygame.init()
 pygame.display.set_mode((1,1))
 
-snake = snake_pygame_fixed
+#snake = snake_ref
 
 side = snake.side_len
 
