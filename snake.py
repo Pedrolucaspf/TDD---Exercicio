@@ -1,7 +1,4 @@
 import pygame
-import os
-import keyboard
-import time
 import random
 
 pygame.init()
@@ -47,7 +44,7 @@ class Snake_body:
         self.head_hitbox = pygame.Rect(self.head_x, self.head_y, side_len, side_len)
         self.size = 2
         self.body = [(0,0)]
-        self.seg_dir = ['h']
+        self.seg_dir = [('d', 'd')]
         self.body_hitboxes = []
         self.body_hitboxes.insert(0, pygame.Rect(self.body[0][0], self.body[0][1], side_len, side_len))
 
@@ -56,30 +53,21 @@ class game:
     x_size: int
     y_size: int
     fruit_hitboxes: list
-    #game_speed: float
     last_input: str
     prev_input: str
-    #test_reconstruct: 
     running: bool
     game_over: bool
-    #matrix = []
     snake: Snake_body
 
     def __init__(self, dim):
         self.x_size = dim[0]
         self.y_size = dim[1]
         self.fruit_hitboxes = []
-        #self.game_speed = speed
         self.last_input = 'd'
         self.prev_input = 'd'
         self.snake = Snake_body()
-        #self.test_reconstruct = True
         self.game_over = False
         self.running = True
-        #self.matrix = []
-
-        #for i in range (self.y_size): 
-        #    self.matrix.append([0]*self.x_size)
 
     def display(self, screen):
         if(self.last_input == 'w'):
@@ -97,7 +85,6 @@ class game:
         for k in range(len(self.fruit_hitboxes)):
             screen.blit(fruit_img, (self.fruit_hitboxes[k].x, self.fruit_hitboxes[k].y))
 
-
     def movement(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -113,30 +100,25 @@ class game:
                 elif event.key == pygame.K_d:
                     self.last_input = 'd'
                 elif event.key == pygame.K_ESCAPE:
-                    self.running = False
+                    self.game_over = True
                     return
 
         if(self.game_over == False):
 
-            #if(self.test_reconstruct):
-            #    self.snake.body = []
-            #    for x in range(self.y_size):
-            #        for y in range(self.x_size):
-            #            if(self.matrix[x][y] == 2):
-            #                self.snake.head_x = x
-            #                self.snake.head_y = y
-            #            elif(self.matrix[x][y] == 1):
-            #                self.snake.body.append((x, y))
-
             if(self.prev_input == 's' and self.last_input == 'w'):
                self.last_input = 's'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             elif(self.prev_input == 'w' and self.last_input == 's'):
                self.last_input = 'w'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             elif(self.prev_input == 'a' and self.last_input == 'd'):
                self.last_input = 'a'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             elif(self.prev_input == 'd' and self.last_input == 'a'):
                self.last_input = 'd'
+               self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
             else:
+                self.snake.seg_dir.insert(0, (self.prev_input, self.last_input))
                 self.prev_input = self.last_input       
 
             i = self.snake.head_x
@@ -183,6 +165,7 @@ class game:
                 if(erase_last == True):
                     self.snake.body.pop()
                     self.snake.body_hitboxes.pop()
+                    self.snake.seg_dir.pop()
                 elif(len(self.fruit_hitboxes) == 0):
                         self.spawn_fruit()
             
@@ -192,8 +175,8 @@ class game:
             fruit_spawned = 0
             fruit = pygame.Rect(-1000, -1000, fruit_img.get_width(), fruit_img.get_height())
             while(fruit_spawned == 0):
-                x = random.randint(1, self.y_size) - 1
-                y = random.randint(1, self.x_size) - 1
+                x = random.randint(2*side_len, self.y_size) - side_len
+                y = random.randint(2*side_len, self.x_size) - side_len
                 fruit.x = x
                 fruit.y = y
                 collided = 0
@@ -208,36 +191,12 @@ class game:
                 if(collided == 0):
                     fruit_spawned = 1
                     self.fruit_hitboxes.append(fruit)
-                    
-### exemplo do uso da classe io_handler  
-#instance = io_handler((10,15), 0.5)
-#instance.matrix[0][0] = 1 #corpo
-#instance.matrix[0][1] = 2 #cabeça
 
 def game_loop():
-    #instance.test_reconstruct = False
-    #instance.spawn_fruit()
-    #instance.record_inputs()
-    #while True:
-    #    instance.movement()
-    #    instance.display()
-    #    print("mova com WASD, saia com esc. Ultimo botão:", end=' ')
-        ###adicione seu código para lidar com o jogo aqui
-        
-    #   print(instance.last_input)
-    #   if(instance.game_over == True or instance.last_input == 'end'):
-    #       print("Pontuação Final: ", instance.snake.size)
-    #       exit()
-    #   time.sleep(instance.game_speed)
-    #   */
-
     instance = game((w, h))
-
     instance.spawn_fruit()
 
-    #myfont = pygame.font.SysFont("monospace", 15)
-    #label = myfont.render("Some text!", 1, (255,255,0))
-    #screen.blit(label, (100, 100))
+    myfont = pygame.font.SysFont("monospace", 40)
 
     clock = pygame.time.Clock()
     
@@ -255,7 +214,12 @@ def game_loop():
             move_timer = 0
 
         screen.fill((255, 255, 255))
-        instance.display(screen)    
+        instance.display(screen)
+
+        if(instance.game_over == True):
+            label = myfont.render(f"Pontuação final: {instance.snake.size}", 1, (0,255,0))
+            screen.blit(label, (w/6, h/3))
+
         pygame.display.flip()
 
     pygame.quit()
