@@ -1,220 +1,179 @@
-from snake import io_handler
+#from snake import io_handler
 #from snake_ref import io_handler
+import snake_pygame_fixed
+
 import pytest
+import pygame
 
-@pytest.fixture
-def handler():
-    instance = io_handler((10, 15), 0.5)
-    instance.matrix[0][0] = 1 #corpo
-    instance.matrix[0][1] = 2 #cabeça
-    instance.matrix[0][5] = 3 #fruta
-    return instance
+pygame.init()
+pygame.display.set_mode((1,1))
 
-@pytest.fixture
-def handler_multi():
-    instance = io_handler((10, 15), 0.5)
-    instance.matrix[0][0] = 1 
-    instance.matrix[0][1] = 2
-    for i in range(1, 9): 
-        instance.matrix[i][1] = 3
-        instance.fruit_count += 1
+snake = snake_pygame_fixed
 
-    instance.last_input = 's'
-    for i in range(8):
-        instance.movement()
+side = snake.side_len
 
-    return instance
+def test_mov():
+    g = snake.game((640, 640))
 
-def test_handler_mov(handler):
-    handler.last_input = 'd'
-    handler.movement()
-    assert handler.matrix[0][2] == 2
-    assert handler.matrix[0][1] == 1
+    g.snake.head_x = 0
+    g.snake.head_y = 0
+    g.snake.body = [(0, 0)]
 
-    handler.movement()
-    assert handler.matrix[0][3] == 2
-    assert handler.matrix[0][2] == 1
+    g.last_input = 'd'
+    g.movement()
 
-    handler.last_input = 's'
-    handler.movement()
-    assert handler.matrix[1][3] == 2
-    assert handler.matrix[0][3] == 1
+    assert ((g.snake.head_x // side) , (g.snake.head_y // side)) == (1, 0)
+    assert ((g.snake.body[0][0] // side), (g.snake.body[0][1] // side)) == (0, 0)
 
-    handler.movement()
-    assert handler.matrix[2][3] == 2
-    assert handler.matrix[1][3] == 1
+    g.movement()
+    assert ((g.snake.head_x // side), (g.snake.head_y // side)) == (2, 0)
 
-    handler.last_input = 'a'
-    handler.movement()
-    assert handler.matrix[2][2] == 2
-    assert handler.matrix[2][3] == 1
-
-    handler.last_input = 'w'
-    handler.movement()
-    assert handler.matrix[1][2] == 2
-    assert handler.matrix[2][2] == 1
-
-@pytest.mark.parametrize("x_before, change_x, y_before, change_y, key", [
-    (0, 0, -1, 1, 'd'),
-    (-1, 0, 0, -1, 'a'),
-    (-1, 1, 0, 0, 's'),
-    (0, -1, -1, 0, 'w'),
+@pytest.mark.parametrize("x_before, y_before, x_after, y_after, key", [
+    (0, 0, 0, 9, 'w'),
+    (0, 0, 9, 0, 'a'),
+    (9, 9, 9, 0, 's'),
+    (9, 9, 0, 9, 'd'),
 ])
 
-def test_boundaries(x_before, change_x, y_before, change_y, key):
-    instance = io_handler((10, 15), 0.5)
-    instance.matrix[x_before][y_before] = 2
-    instance.last_input = key
-    instance.snake.head_x = x_before
-    instance.snake.head_y = y_before
+def test_boundaries(x_before, y_before, x_after, y_after, key):
+    g = snake.game((10*side, 10*side))
 
-    x_after = (x_before + change_x) % instance.y_size
-    y_after = (y_before + change_y) % instance.x_size
+    g.prev_input = key
 
-    if(x_before == x_after):
-        instance.matrix[x_before][y_before-change_y] = 1
-        instance.movement()
-        assert instance.matrix[x_before][y_after] == 2
-        assert instance.matrix[x_before][y_before] == 1
+    g.snake.head_x = x_before * side
+    g.snake.head_y = y_before * side
 
-        for i in range(instance.x_size):
-            instance.movement()
+    g.last_input = key
+    g.movement()
 
-        assert instance.matrix[x_before][y_after] == 2
-        assert instance.matrix[x_before][y_after-change_y] == 1
-
-    elif(y_before == y_after):
-        instance.matrix[x_before-change_x][y_before] = 1
-        instance.movement()
-        assert instance.matrix[x_after][y_before] == 2
-        assert instance.matrix[x_before][y_before] == 1
-
-        for i in range(instance.y_size):
-            instance.movement()
-        
-        assert instance.matrix[x_after][y_before] == 2
-        assert instance.matrix[x_after-change_x][y_before] == 1
-
-def test_disappear(handler):
-    handler.last_input = 's'
-    for i in range(3):
-        handler.movement()
-    
-    assert handler.matrix[0][0] == 0
-    assert handler.matrix[0][1] == 0
-    assert handler.matrix[1][1] == 0
-
-    
-def test_eat_fruit(handler):
-    handler.last_input = 'd'
-    handler.test_reconstruct = False
-    for i in range(4):
-        handler.movement()
-        
-    assert handler.snake.size == 3
-    assert handler.matrix[0][5] == 2
-    assert handler.matrix[0][4] == 1
-    assert handler.matrix[0][3] == 1
-    
-    fruit_present = False
-
-    for x in range(handler.y_size):
-        for y in range(handler.x_size):
-            if(handler.matrix[x][y] == 3):
-                fruit_present = True
-            
-        
-    assert fruit_present == True
+    assert ((g.snake.head_x // side), (g.snake.head_y // side)) == (x_after, y_after)
 
 
-def test_multi_fruit(handler_multi):
-    assert handler_multi.snake.size == 10
-    assert handler_multi.fruit_count == 2
-    
-    for x in range(handler_multi.y_size):
-                for y in range(handler_multi.x_size):
-                    if(handler_multi.matrix[x][y] == 3):
-                        handler_multi.matrix[x][y] = 0
-                        handler_multi.fruit_count -= 1
+def test_eat_fruit():
+    g = snake.game((640, 640))
 
-    hx = handler_multi.snake.head_x
-    hy = handler_multi.snake.head_y
-    for i in range(1, 5): 
-        handler_multi.matrix[hx+i][hy] = 3
-        handler_multi.fruit_count += 1
+    g.snake.head_x = 0
+    g.snake.head_y = 0
 
-    hx += 4
+    g.snake.head_hitbox.x = 0
+    g.snake.head_hitbox.y = 0
+
+    fruit = pygame.Rect(side, 0, side, side)
+    g.fruit_hitboxes.append(fruit)
+
+    g.last_input = 'd'
+    g.movement()
+
+    assert g.snake.size == 3
+    checker = pygame.Rect(side, 0, side, side)
+    for k in range(len(g.fruit_hitboxes)):
+        assert (checker.colliderect(g.fruit_hitboxes[k])) == 0
+
+def test_multi_fruit():
+    g = snake.game((10*side, 15*side))
+
+    g.snake.head_x = 0
+    g.snake.head_y = 0
+    g.snake.head_hitbox.x = 0
+    g.snake.head_hitbox.y = 1*side
+    g.snake.body = [(0, 0)]
+    g.snake.body_hitboxes = [pygame.Rect(0, 0, side, side)]
+
+    x = 0
+    for i in range(1, 9):
+        y = i*side
+        g.fruit_hitboxes.append(pygame.Rect(x, y, side, side))
+
+    g.last_input = 's'
+
+    for i in range(8):
+        g.movement()
+
+    assert g.snake.size == 10
+
+    assert len(g.fruit_hitboxes) == 2
+
+    g.fruit_hitboxes.clear()
+
+    hy = g.snake.head_y // side
+
+    for i in range(1, 5):
+        y = (hy+i)*side
+        g.fruit_hitboxes.append(pygame.Rect(x, y, side, side))
 
     for i in range(4):
-        handler_multi.movement()
-    
-    assert handler_multi.snake.size == 14
+        g.movement()
 
-    for x in range(handler_multi.y_size):
-        for y in range(handler_multi.x_size):
-            if(handler_multi.matrix[x][y] == 3):
-                handler_multi.matrix[x][y] = 0
-                handler_multi.fruit_count -= 1
+    assert g.snake.size == 14
 
-    for i in range(1, 7): 
-        handler_multi.matrix[hx][hy+i] = 3
-        handler_multi.fruit_count += 1
+    g.fruit_hitboxes.clear()
 
-    handler_multi.last_input = 'd'
+    hy = g.snake.head_y // side
+    y = hy*side
+    for i in range(1, 7):
+        x = i*side
+        g.fruit_hitboxes.append(pygame.Rect(x, y, side, side))
+
+    g.last_input = 'd'
+
     for i in range(6):
-        handler_multi.movement()
+        g.movement()
 
-    assert handler_multi.snake.size == 20
-    assert handler_multi.fruit_count == 3
+    assert g.snake.size == 20
+
+    assert len(g.fruit_hitboxes) == 3
+
+def test_game_over():
+    g = snake.game((640, 640))
+
+    g.snake.head_x = 1*side
+    g.snake.head_y = 0
+
+    g.snake.head_hitbox.x = side
+    g.snake.head_hitbox.y = 0
+
+    g.snake.body = [(0, 0), (side, 0)]
+
+    g.snake.body_hitboxes = [pygame.Rect(0, 0, side, side), pygame.Rect(side, 0, side, side)]
+
+    g.last_input = 'a'
+    g.movement()
+
+    assert g.game_over == True
+
+    hx = g.snake.head_x
+    hy = g.snake.head_y
+
+    g.movement()
+
+    assert g.snake.head_x == hx
+    assert g.snake.head_y == hy
 
 
-def test_game_over(handler_multi):
-    handler_multi.test_reconstruct = False
-    handler_multi.last_input = 'd'
-    for i in range(2):
-        handler_multi.movement()
+def test_opposing_keys():
+    g = snake.game((640, 640))
+    g.last_input = 's'
+    g.movement()
+    g.last_input = 'w'
+    g.movement()
+    assert g.prev_input == 's'
+
+    g.last_input = 'd'
+    g.movement()
+    g.last_input = 'a'
+    g.movement()
+    assert g.prev_input == 'd'
+
+    g.last_input = 'w'
+    g.movement()
+    g.last_input = 's'
+    g.movement()
+    assert g.prev_input == 'w'
+
+    g.last_input = 'a'
+    g.movement()
+    g.last_input = 'd'
+    g.movement()
+    assert g.prev_input == 'a'
+
     
-    handler_multi.last_input = 'w'
-    handler_multi.movement()
-    
-    handler_multi.last_input = 'a'
-    handler_multi.movement()
-
-    hx = handler_multi.snake.head_x
-    hy = handler_multi.snake.head_y
-
-    handler_multi.movement()
-
-    assert handler_multi.game_over == True
-
-    handler_multi.movement()
-
-    assert handler_multi.snake.head_x == hx
-    assert handler_multi.snake.head_y == hy
-
-def test_opposing_keys(handler):
-    handler.last_input = 's'
-    handler.movement()
-    handler.last_input = 'w'
-    handler.movement()
-    assert handler.snake.head_x == 2
-
-    handler.last_input = 'd'
-    handler.movement()
-    handler.last_input = 'a'
-    handler.movement()
-    assert handler.snake.head_y == 3
-
-    handler.last_input = 'w'
-    handler.movement()
-    handler.last_input = 's'
-    handler.movement()
-    assert handler.snake.head_x == 0
-
-    handler.last_input = 'a'
-    handler.movement()
-    handler.last_input = 'd'
-    handler.movement()
-    assert handler.snake.head_y == 1
-
-
